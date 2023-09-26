@@ -40,7 +40,12 @@ defmodule MarketWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
+    parsers: [
+      :urlencoded,
+      # 20MB max upload
+      {:multipart, length: 20_000_000},
+      {:json, length: 20_000_000}
+    ],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 
