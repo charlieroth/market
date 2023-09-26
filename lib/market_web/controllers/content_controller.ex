@@ -6,19 +6,19 @@ defmodule MarketWeb.ContentController do
   action_fallback MarketWeb.FallbackController
 
   @doc """
-  Upload a piece of content.
+  Create a piece of content.
 
   This request handler can accept either a multipart/form-data request or a
   application/json request.
   """
-  def upload(conn, params) do
+  def create(conn, params) do
     conn
     |> get_req_header("content-type")
     |> Enum.at(0)
-    |> handle_upload(conn, params)
+    |> handle_create(conn, params)
   end
 
-  defp handle_upload("multipart/form-data" <> _rest, conn, %{
+  defp handle_create("multipart/form-data" <> _rest, conn, %{
          "file" => upload,
          "file_type" => file_type,
          "sender_id" => sender_id_string,
@@ -49,7 +49,7 @@ defmodule MarketWeb.ContentController do
     end
   end
 
-  defp handle_upload("application/json", conn, %{
+  defp handle_create("application/json", conn, %{
          "file" => file_base64,
          "file_type" => file_type,
          "sender_id" => sender_id,
@@ -72,7 +72,7 @@ defmodule MarketWeb.ContentController do
     end
   end
 
-  defp handle_upload(_other_content_type, conn, _params) do
+  defp handle_create(_other_content_type, conn, _params) do
     conn
     |> put_status(500)
     |> json(%{message: "unknown content type"})
@@ -82,23 +82,18 @@ defmodule MarketWeb.ContentController do
   defp parse_boolean_string("false"), do: false
   defp parse_boolean_string(_), do: {:error, "invalid boolean string"}
 
-  def content_for_receiver(conn, %{"receiver_id" => receiver_id}) do
-    with {receiver_id, _} <- Integer.parse(receiver_id) do
-      contents = Store.list_contents(%{receiver_id: receiver_id})
-      render(conn, :index, contents: contents)
+  def content_for_user(conn, %{"user_id" => user_id}) do
+    with {user_id, _} <- Integer.parse(user_id),
+         {:ok, contents} <- Store.list_contents(%{user_id: user_id}) do
+      conn
+      |> put_status(200)
+      |> render(:index, contents: contents)
     else
-      reason ->
+      {:error, "No content found"} ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
-    end
-  end
+        |> put_status(:not_found)
+        |> json(%{message: "No content found"})
 
-  def content_for_sender(conn, %{"sender_id" => sender_id}) do
-    with {sender_id, _} <- Integer.parse(sender_id) do
-      contents = Store.list_contents(%{sender_id: sender_id})
-      render(conn, :index, contents: contents)
-    else
       reason ->
         conn
         |> put_status(:unprocessable_entity)

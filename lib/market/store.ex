@@ -12,16 +12,18 @@ defmodule Market.Store do
 
   ## Examples
 
-      iex> list_contents(%{receiver_id: 123})
+      iex> list_contents(%{user_id: 123})
       [%Content{}, ...]
 
   """
-  def list_contents(%{receiver_id: receiver_id}) do
-    Content.Query.for_receiver(receiver_id) |> Repo.all()
-  end
+  def list_contents(%{user_id: user_id}) do
+    case Content.Query.for_receiver(user_id) |> Repo.all() do
+      [] ->
+        {:error, "No content found"}
 
-  def list_contents(%{sender_id: sender_id}) do
-    Content.Query.for_sender(sender_id) |> Repo.all()
+      contents ->
+        {:ok, contents}
+    end
   end
 
   def list_contents(_filters) do
