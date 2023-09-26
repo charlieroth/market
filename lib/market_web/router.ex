@@ -22,6 +22,14 @@ defmodule MarketWeb.Router do
 
   scope "/api", MarketWeb do
     pipe_through :api
+
+    post "/upload", ContentController, :upload
+
+    get "/content/receiver/:receiver_id", ContentController, :content_for_receiver
+    get "/content/sender/:sender_id", ContentController, :content_for_sender
+
+    put "/content/:id", ContentController, :update
+    get "/content/:id", ContentController, :show
   end
 
   if Application.compile_env(:market, :dev_routes) do
