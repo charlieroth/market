@@ -144,20 +144,28 @@ defmodule MarketWeb.ContentController do
     else
       {:error, :token_expired} ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{message: "Purchase token expired"})
+        |> put_status(400)
+        |> json(%{error: "Purchase token expired"})
 
       {:error, :token_mismatch} ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{message: "Purchase token could not be found"})
+        |> put_status(400)
+        |> json(%{error: "Purchase token could not be found"})
 
-      reason ->
-        IO.inspect(reason)
+      {:error, :purchase_not_found} ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Purchase not found with id: #{purchase_id}"})
 
+      :error ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Failed to parse purchase_id"})
+
+      _reason ->
         conn
         |> put_status(500)
-        |> json(%{message: "Internal server error"})
+        |> json(%{error: "Internal server error"})
     end
   end
 end

@@ -12,6 +12,29 @@ defmodule MarketWeb.ContentControllerTest do
     Enum.into(context, %{content: content})
   end
 
+  defp with_purchase_and_token(%{content: content, user: user} = context) do
+    {:ok, purchase} =
+      Market.Store.create_purchase(%{
+        completed: false,
+        content_id: content.id,
+        receiver_id: user.id
+      })
+
+    {:ok, token} =
+      Market.Store.create_purchase_token(
+        %{
+          purchase_id: purchase.id,
+          content_id: content.id,
+          receiver_id: user.id
+        },
+        {2, :second}
+      )
+
+    {:ok, purchase} = Market.Store.update_purchase(purchase, %{purchase_token: token})
+
+    Enum.into(%{purchase: purchase, token: token}, context)
+  end
+
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -136,6 +159,82 @@ defmodule MarketWeb.ContentControllerTest do
         })
 
       assert conn.status == 404
+    end
+  end
+
+  describe "complete a purchase" do
+    setup [:with_user, :with_content, :with_purchase_and_token]
+
+    test "successfully completes a purchase", %{
+      conn: conn,
+      content: content,
+      purchase: purchase,
+      token: token
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("x-purchase-token", token)
+        |> post(~p"/api/purchase/#{purchase.id}/complete", %{})
+
+      assert conn.status == 200
+    end
+
+    test "fails when purchase token is expired", %{
+      conn: conn,
+      content: content,
+      purchase: purchase,
+      token: token
+    } do
+      Process.sleep(3000)
+
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("x-purchase-token", token)
+        |> post(~p"/api/purchase/#{purchase.id}/complete", %{})
+
+      assert conn.status == 400
+    end
+
+    test "fails when token on purchase record and purchase token sent in request don't match", %{
+      conn: conn,
+      purchase: purchase
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("x-purchase-token", "not-the-same-token")
+        |> post(~p"/api/purchase/#{purchase.id}/complete", %{})
+
+      assert conn.status == 400
+    end
+
+    test "fails when purchase id is not a valid id", %{
+      conn: conn,
+      purchase: purchase,
+      token: token
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("x-purchase-token", token)
+        |> post(~p"/api/purchase/not-valid-id/complete", %{})
+
+      assert conn.status == 400
+    end
+
+    test "fails when purchase does not exist", %{
+      conn: conn,
+      token: token
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> put_req_header("x-purchase-token", token)
+        |> post(~p"/api/purchase/123/complete", %{})
+
+      assert conn.status == 400
     end
   end
 end
