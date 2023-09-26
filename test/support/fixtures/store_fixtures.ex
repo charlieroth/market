@@ -22,4 +22,19 @@ defmodule Market.StoreFixtures do
 
     content
   end
+
+  def purchase_fixture(attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{completed: false, content_id: 1, receiver_id: 456})
+    {:ok, purchase} = Market.Store.create_purchase(attrs)
+
+    {:ok, token, _claims} =
+      Market.Guardian.encode_and_sign(%{
+        purchase_id: purchase.id,
+        content_id: purchase.content_id,
+        receiver_id: purchase.receiver_id
+      })
+
+    {:ok, purchase} = Market.Store.update_purchase(purchase, %{purchase_token: token})
+    purchase
+  end
 end

@@ -27,7 +27,7 @@ defmodule Market.Store do
     end
   end
 
-  def list_contents(_filters) do
+  def list_contents() do
     Content.Query.base() |> Repo.all()
   end
 
@@ -48,49 +48,30 @@ defmodule Market.Store do
 
   @doc """
   Create a piece of content.
-
-  ## Examples
-
-      iex> create_content(%{field: value})
-      {:ok, %Content{}}
-
-      iex> create_content(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
   """
-  def create_content(%{
-        file: file,
-        file_type: file_type,
-        sender_id: sender_id,
-        receiver_id: receiver_id,
-        is_payable: is_payable
-      }) do
+  @spec create_content(map()) :: {:ok, Content.t()} | {:error, Ecto.Changeset.t()}
+  def create_content(
+        %{
+          file: _file,
+          file_type: _file_type,
+          sender_id: _sender_id,
+          receiver_id: _receiver_id,
+          is_payable: _is_payable
+        } = attrs
+      ) do
     %Content{}
-    |> Content.changeset(%{
-      file_type: file_type,
-      file: file,
-      sender_id: sender_id,
-      receiver_id: receiver_id,
-      is_payable: is_payable
-    })
+    |> Content.changeset(attrs)
     |> Repo.insert()
   end
 
   def create_content(_params) do
-    {:error, "Invalid request parameters"}
+    {:error, "Invalid content creation attributes"}
   end
 
   @doc """
-  Updates a content.
-
-  ## Examples
-
-      iex> update_content(content, %{field: new_value})
-      {:ok, %Content{}}
-
-      iex> update_content(content, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  Updates a piece of content
   """
+  @spec update_content(Content.t(), map()) :: {:ok, Content.t()} | {:error, Ecto.Changeset.t()}
   def update_content(%Content{} = content, attrs) do
     content
     |> Content.changeset(attrs)
@@ -98,17 +79,9 @@ defmodule Market.Store do
   end
 
   @doc """
-  Deletes a content.
-
-  ## Examples
-
-      iex> delete_content(content)
-      {:ok, %Content{}}
-
-      iex> delete_content(content)
-      {:error, %Ecto.Changeset{}}
-
+  Deletes a piece of content
   """
+  @spec delete_content(Content.t()) :: :ok | {:error, Ecto.Changeset.t()}
   def delete_content(%Content{} = content) do
     Repo.delete(content)
   end
@@ -188,7 +161,7 @@ defmodule Market.Store do
   end
 
   @doc """
-  Calls the payment processor to initialize a purchase.
+  Creates a JWT token to complete a purchase later on.
 
   Returns a purchase token that expires in 1 minutes.
   """
@@ -196,18 +169,22 @@ defmodule Market.Store do
           purchase_id: integer(),
           content_id: integer(),
           receiver_id: integer()
-        }) :: String.t()
+        }) :: {:ok, String.t()} | {:error, any()}
   def create_purchase_token(
-        %{purchase_id: _purchase_id, content_id: _content_id, receiver_id: _receiver_id} = attrs
+        %{purchase_id: _purchase_id, content_id: _content_id, receiver_id: _receiver_id} = attrs,
+        ttl \\ {1, :minute}
       ) do
-    {:ok, token, _claims} =
-      Market.Guardian.encode_and_sign(
-        attrs,
-        %{},
-        ttl: {1, :minute}
-      )
+    case Market.Guardian.encode_and_sign(attrs, %{}, ttl: ttl) do
+      {:ok, token, _claims} ->
+        {:ok, token}
 
-    token
+      {:error, _reason} = error ->
+        error
+    end
+  end
+
+  def create_purchase_token(_params, _ttl) do
+    {:error, "Invalid purchase token creation attributes"}
   end
 
   @doc """
