@@ -5,6 +5,7 @@ config :market,
 
 config :market, MarketWeb.Endpoint,
   url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: MarketWeb.ErrorHTML, json: MarketWeb.ErrorJSON],
     layout: false
