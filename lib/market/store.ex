@@ -46,6 +46,8 @@ defmodule Market.Store do
     Repo.get!(Content, id)
   end
 
+  def get_content(id), do: Repo.get(Content, id)
+
   @doc """
   Create a piece of content.
   """
@@ -115,14 +117,14 @@ defmodule Market.Store do
             receiver_id: user_id
           })
 
-        purchase_token =
+        {:ok, token} =
           create_purchase_token(%{
             purchase_id: purchase.id,
             content_id: content.id,
             receiver_id: user_id
           })
 
-        {:ok, purchase} = update_purchase(purchase, %{purchase_token: purchase_token})
+        {:ok, purchase} = update_purchase(purchase, %{purchase_token: token})
 
         {:ok, content, purchase.purchase_token}
 
