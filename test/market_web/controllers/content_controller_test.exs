@@ -3,94 +3,88 @@ defmodule MarketWeb.ContentControllerTest do
 
   import Market.StoreFixtures
 
-  alias Market.Store.Content
-
-  @create_attrs %{
-    sender_id: 42,
-    file_type: "png",
-    receiver_id: 42,
-    is_payable: true
-  }
-  @update_attrs %{
-    sender_id: 43,
-    file_type: "jpeg",
-    receiver_id: 43,
-    is_payable: false
-  }
-  @invalid_attrs %{sender_id: nil, file_type: nil, receiver_id: nil, is_payable: nil}
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all contents", %{conn: conn} do
-      conn = get(conn, ~p"/api/contents")
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
-
   describe "create content" do
     test "renders content when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/contents", content: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get(conn, ~p"/api/contents/#{id}")
-
-      assert %{
-               "id" => ^id,
-               "file_type" => "png",
-               "is_payable" => true,
-               "receiver_id" => 42,
-               "sender_id" => 42
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, ~p"/api/contents", content: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "update content" do
-    setup [:create_content]
-
-    test "renders content when data is valid", %{conn: conn, content: %Content{id: id} = content} do
-      conn = put(conn, ~p"/api/contents/#{content}", content: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, ~p"/api/contents/#{id}")
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content", %{
+          file:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          file_type: "png",
+          sender_id: 678,
+          receiver_id: 123,
+          is_payable: false
+        })
 
       assert %{
-               "id" => ^id,
-               "file_type" => "jpeg",
-               "is_payable" => false,
-               "receiver_id" => 43,
-               "sender_id" => 43
-             } = json_response(conn, 200)["data"]
+               "id" => _id,
+               "file_type" => _file_type,
+               "sender_id" => _sender_id,
+               "is_payable" => _is_payable
+             } = json_response(conn, 201)["data"]
     end
 
-    test "renders errors when data is invalid", %{conn: conn, content: content} do
-      conn = put(conn, ~p"/api/contents/#{content}", content: @invalid_attrs)
+    test "returns 422 when given not a bas64 encoded file string", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content", %{
+          file: "not-valid-file-data",
+          file_type: "png",
+          sender_id: 678,
+          receiver_id: 123,
+          is_payable: false
+        })
+
       assert json_response(conn, 422)["errors"] != %{}
     end
-  end
 
-  describe "delete content" do
-    setup [:create_content]
+    test "returns 400 when given unsupported content-type", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_header("content-type", "text/html")
+        |> post(~p"/api/content", %{
+          file:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          file_type: "png",
+          sender_id: 678,
+          receiver_id: 123,
+          is_payable: false
+        })
 
-    test "deletes chosen content", %{conn: conn, content: content} do
-      conn = delete(conn, ~p"/api/contents/#{content}")
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, ~p"/api/contents/#{content}")
-      end
+      assert conn.status == 400
     end
   end
 
-  defp create_content(_) do
-    content = content_fixture()
-    %{content: content}
+  describe "get receiver content" do
+    defp with_user(context) do
+      Enum.into(context, %{user: %{id: 456}})
+    end
+
+    defp with_content(%{user: user} = context) do
+      content = content_fixture(%{receiver_id: user.id})
+      Enum.into(context, %{content: content})
+    end
+
+    setup [:with_user, :with_content]
+
+    test "returns content for given user", %{conn: conn, content: content, user: user} do
+      conn = get(conn, ~p"/api/user/#{user.id}/content")
+
+      assert json_response(conn, 200)["data"] == [
+               %{
+                 "file_type" => "png",
+                 "id" => content.id,
+                 "is_payable" => true,
+                 "receiver_id" => user.id,
+                 "sender_id" => 123
+               }
+             ]
+    end
   end
 end

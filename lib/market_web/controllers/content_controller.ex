@@ -44,7 +44,7 @@ defmodule MarketWeb.ContentController do
       reason ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+        |> json(%{errors: reason})
     end
   end
 
@@ -71,14 +71,14 @@ defmodule MarketWeb.ContentController do
       reason ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+        |> json(%{errors: reason})
     end
   end
 
   defp handle_create(_other_content_type, conn, _params) do
     conn
-    |> put_status(500)
-    |> json(%{message: "unknown content type"})
+    |> put_status(400)
+    |> json(%{message: "unsupported request content-type"})
   end
 
   defp parse_boolean_string("true"), do: true
@@ -100,7 +100,7 @@ defmodule MarketWeb.ContentController do
       reason ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+        |> json(%{errors: reason})
     end
   end
 
@@ -115,7 +115,7 @@ defmodule MarketWeb.ContentController do
       {:error, reason} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+        |> json(%{errors: reason})
 
       _reason ->
         conn
