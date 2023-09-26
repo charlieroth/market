@@ -3,6 +3,15 @@ defmodule MarketWeb.ContentControllerTest do
 
   import Market.StoreFixtures
 
+  defp with_user(context) do
+    Enum.into(context, %{user: %{id: 456}})
+  end
+
+  defp with_content(%{user: user} = context) do
+    content = content_fixture(%{receiver_id: user.id})
+    Enum.into(context, %{content: content})
+  end
+
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -62,15 +71,6 @@ defmodule MarketWeb.ContentControllerTest do
   end
 
   describe "get receiver content" do
-    defp with_user(context) do
-      Enum.into(context, %{user: %{id: 456}})
-    end
-
-    defp with_content(%{user: user} = context) do
-      content = content_fixture(%{receiver_id: user.id})
-      Enum.into(context, %{content: content})
-    end
-
     setup [:with_user, :with_content]
 
     test "returns content for given user", %{conn: conn, content: content, user: user} do
@@ -85,6 +85,57 @@ defmodule MarketWeb.ContentControllerTest do
                  "sender_id" => 123
                }
              ]
+    end
+  end
+
+  describe "purchase a piece of content" do
+    setup [:with_user, :with_content]
+
+    test "returns a purchase token and content id given valid data", %{
+      conn: conn,
+      content: content,
+      user: user
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content/#{content.id}/purchase", %{
+          user_id: user.id
+        })
+
+      response = json_response(conn, 200)
+      assert response["content_id"] == content.id
+      assert response["purchase_token"] != nil
+    end
+
+    test "fails when an invalid content_id is in the URL", %{
+      conn: conn,
+      content: content,
+      user: user
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content/not-a-valid-id/purchase", %{
+          user_id: user.id
+        })
+
+      assert conn.status == 400
+    end
+
+    test "fails content_id not found", %{
+      conn: conn,
+      content: content,
+      user: user
+    } do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content/123/purchase", %{
+          user_id: user.id
+        })
+
+      assert conn.status == 404
     end
   end
 end

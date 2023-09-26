@@ -106,7 +106,7 @@ defmodule MarketWeb.ContentController do
 
   def purchase(conn, %{"content_id" => content_id, "user_id" => user_id}) do
     with {content_id, _} <- Integer.parse(content_id),
-         content <- Store.get_content!(content_id),
+         {:ok, content} <- Store.get_content(content_id),
          {:ok, content, purchase_token} <- Store.init_purchase(content, user_id) do
       conn
       |> put_status(:ok)
@@ -114,13 +114,23 @@ defmodule MarketWeb.ContentController do
     else
       {:error, reason} ->
         conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{errors: reason})
+        |> put_status(400)
+        |> json(%{error: reason})
 
-      _reason ->
+      :error ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Failed to parse content_id or user_id"})
+
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Failed to find content"})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(500)
-        |> json(%{message: "Internal server error"})
+        |> json(%{errors: changeset.errors})
     end
   end
 
