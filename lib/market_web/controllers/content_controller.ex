@@ -28,19 +28,18 @@ defmodule MarketWeb.ContentController do
     with {sender_id, _} <- Integer.parse(sender_id_string),
          {receiver_id, _} <- Integer.parse(receiver_id_string),
          is_payable <- parse_boolean_string(is_payable_string),
-         {:ok, file} <- File.read(upload.path) do
-      case Store.create_content(%{
+         {:ok, file} <- File.read(upload.path),
+         {:ok, content} <-
+           Store.create_content(%{
              file: file,
              file_type: file_type,
              sender_id: sender_id,
              receiver_id: receiver_id,
              is_payable: is_payable
            }) do
-        {:ok, content} ->
-          conn
-          |> put_status(:created)
-          |> render(:show, content: content)
-      end
+      conn
+      |> put_status(:created)
+      |> render(:show, content: content)
     else
       reason ->
         conn
@@ -56,19 +55,23 @@ defmodule MarketWeb.ContentController do
          "receiver_id" => receiver_id,
          "is_payable" => is_payable
        }) do
-    with {:ok, file} <- Base.decode64(file_base64) do
-      case Store.create_content(%{
+    with {:ok, file} <- Base.decode64(file_base64),
+         {:ok, content} <-
+           Store.create_content(%{
              file: file,
              file_type: file_type,
              sender_id: sender_id,
              receiver_id: receiver_id,
              is_payable: is_payable
            }) do
-        {:ok, content} ->
-          conn
-          |> put_status(:created)
-          |> render(:show, content: content)
-      end
+      conn
+      |> put_status(:created)
+      |> render(:show, content: content)
+    else
+      reason ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
     end
   end
 
@@ -113,21 +116,38 @@ defmodule MarketWeb.ContentController do
         conn
         |> put_status(:unprocessable_entity)
         |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+
+      _reason ->
+        conn
+        |> put_status(500)
+        |> json(%{message: "Internal server error"})
     end
   end
 
-  def complete_purchase(conn, %{"purchase_id" => purchase_id, "user_id" => user_id}) do
+  def complete_purchase(conn, %{"purchase_id" => purchase_id}) do
     with [purchase_token | _] <- get_req_header(conn, "x-purchase-token"),
          {purchase_id, _} <- Integer.parse(purchase_id),
-         {:ok, _purchase} <- Store.complete_purchase(purchase_id, purchase_token, user_id) do
+         {:ok, _purchase} <- Store.complete_purchase(purchase_id, purchase_token) do
       conn
       |> put_status(:ok)
       |> json(%{message: "Purchase completed"})
     else
-      {:error, reason} ->
+      {:error, :token_expired} ->
         conn
         |> put_status(:unprocessable_entity)
-        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+        |> json(%{message: "Purchase token expired"})
+
+      {:error, :token_mismatch} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{message: "Purchase token could not be found"})
+
+      reason ->
+        IO.inspect(reason)
+
+        conn
+        |> put_status(500)
+        |> json(%{message: "Internal server error"})
     end
   end
 end

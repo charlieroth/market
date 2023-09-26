@@ -15,8 +15,6 @@ defmodule Market.Store.Purchase do
   def changeset(content, attrs) do
     content
     |> cast(attrs, [:purchase_token, :completed, :content_id, :receiver_id])
-    |> validate_required([:purchase_token, :completed, :content_id, :receiver_id])
+    |> validate_required([:completed, :content_id, :receiver_id])
   end
-
-  P
 end
