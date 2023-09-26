@@ -41,4 +41,9 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
+# in each environment config file you should overwrite this if it's external
+config :guardian, Market.Guardian,
+  issuer: "Market",
+  secret_key: "super-secret-key"
+
 import_config "#{config_env()}.exs"

@@ -16,7 +16,7 @@ defmodule Market.MixProject do
   def application do
     [
       mod: {Market.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :guardian]
     ]
   end
 
@@ -42,7 +42,8 @@ defmodule Market.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
-      {:bandit, "1.0.0-pre.16"}
+      {:bandit, "1.0.0-pre.16"},
+      {:guardian, "~> 2.3"}
     ]
   end
 
