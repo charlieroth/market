@@ -101,12 +101,13 @@ defmodule MarketWeb.ContentController do
     end
   end
 
-  def update(conn, %{"id" => id, "params" => params}) do
-    with content <- Store.get_content!(id),
-         {:ok, content} <- Store.update_content(content, params) do
+  def purchase(conn, %{"content_id" => content_id, "user_id" => user_id}) do
+    with {content_id, _} <- Integer.parse(content_id),
+         content <- Store.get_content!(content_id),
+         {:ok, content, purchase_token} <- Store.init_purchase(content, user_id) do
       conn
       |> put_status(:ok)
-      |> render(:show, content: content)
+      |> json(%{purchase_token: purchase_token, content_id: content.id})
     else
       {:error, reason} ->
         conn
@@ -115,8 +116,18 @@ defmodule MarketWeb.ContentController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    content = Store.get_content!(id)
-    render(conn, :show, content: content)
+  def complete_purchase(conn, %{"purchase_id" => purchase_id, "user_id" => user_id}) do
+    with [purchase_token | _] <- get_req_header(conn, "x-purchase-token"),
+         {purchase_id, _} <- Integer.parse(purchase_id),
+         {:ok, _purchase} <- Store.complete_purchase(purchase_id, purchase_token, user_id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{message: "Purchase completed"})
+    else
+      {:error, reason} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(MarketWeb.ErrorView, "422.json", %{errors: reason})
+    end
   end
 end

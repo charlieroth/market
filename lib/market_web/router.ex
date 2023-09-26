@@ -24,13 +24,12 @@ defmodule MarketWeb.Router do
     pipe_through :api
 
     post "/content", ContentController, :create
-    put "/content/:id", ContentController, :update
-    get "/content/:id", ContentController, :show
-    post "/content/:id/purchase", ContentController, :purchase
 
     get "/user/:user_id/content", ContentController, :content_for_user
 
-    post "/purchase/complete/:purchase_id", ContentController, :complete_purchase
+    post "/content/:content_id/purchase", ContentController, :purchase
+
+    post "/purchase/:purchase_id/complete", ContentController, :complete_purchase
   end
 
   if Application.compile_env(:market, :dev_routes) do
