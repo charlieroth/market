@@ -35,6 +35,30 @@ defmodule MarketWeb.ContentControllerTest do
     Enum.into(%{purchase: purchase, token: token}, context)
   end
 
+  defp with_completed_purchase(%{content: content, user: user} = context) do
+    {:ok, purchase} =
+      Market.Store.create_purchase(%{
+        completed: false,
+        content_id: content.id,
+        receiver_id: user.id
+      })
+
+    {:ok, token} =
+      Market.Store.create_purchase_token(
+        %{
+          purchase_id: purchase.id,
+          content_id: content.id,
+          receiver_id: user.id
+        },
+        {2, :second}
+      )
+
+    {:ok, purchase} =
+      Market.Store.update_purchase(purchase, %{purchase_token: token, completed: true})
+
+    Enum.into(%{purchase: purchase, token: token}, context)
+  end
+
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -93,11 +117,62 @@ defmodule MarketWeb.ContentControllerTest do
     end
   end
 
+  describe "get content user has purchased" do
+    setup [:with_user, :with_content, :with_completed_purchase]
+
+    test "returns content for given user", %{conn: conn, content: content, user: user} do
+      conn = get(conn, ~p"/api/user/#{user.id}/content/#{content.id}")
+      assert conn |> get_resp_header("content-type") |> Enum.at(0) == "image/png; charset=utf-8"
+      assert conn.status == 200
+    end
+
+    test "return 400 when user has not purchased content requested", %{
+      conn: conn,
+      user: user
+    } do
+      conn = get(conn, ~p"/api/user/#{user.id}/content/678")
+      assert conn.status == 403
+    end
+
+    test "return 400 either user_id is not a valid id", %{
+      conn: conn
+    } do
+      conn = get(conn, ~p"/api/user/not-a-valid-user-id/content/678")
+      assert conn.status == 400
+    end
+
+    test "return 400 either content_id is not a valid id", %{
+      conn: conn,
+      user: user
+    } do
+      conn = get(conn, ~p"/api/user/#{user.id}/content/not-a-valid-content-id")
+      assert conn.status == 400
+    end
+  end
+
   describe "get receiver content" do
     setup [:with_user, :with_content]
 
     test "returns content for given user", %{conn: conn, content: content, user: user} do
-      conn = get(conn, ~p"/api/user/#{user.id}/content")
+      conn = get(conn, ~p"/api/user/#{user.id}/content/received")
+
+      assert json_response(conn, 200)["data"] == [
+               %{
+                 "file_type" => "png",
+                 "id" => content.id,
+                 "is_payable" => true,
+                 "receiver_id" => user.id,
+                 "sender_id" => 123
+               }
+             ]
+    end
+  end
+
+  describe "get purchased content" do
+    setup [:with_user, :with_content, :with_completed_purchase]
+
+    test "returns content for given user", %{conn: conn, content: content, user: user} do
+      conn = get(conn, ~p"/api/user/#{user.id}/content/purchased")
 
       assert json_response(conn, 200)["data"] == [
                %{

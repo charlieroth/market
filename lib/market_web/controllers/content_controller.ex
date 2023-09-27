@@ -115,6 +115,11 @@ defmodule MarketWeb.ContentController do
         |> put_status(404)
         |> json(%{error: "Failed to find content"})
 
+      :error ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Failed to parse content_id or user_id"})
+
       reason ->
         IO.inspect(reason, label: "GET /api/user/:user_id/content/:content_id failed")
 
