@@ -1,10 +1,10 @@
 # Market API
 
-## `POST /api/upload`
+## `POST /api/content`
 
-This endpoint can accept two kinds of requests:
+This endpoint can accept two kinds of request bodies:
 
-JSON request with the following body. The `file` property is the base64 encoded string of the file to be uploaded.
+JSON, with `file` property as the base64 encoded string of the file to be uploaded.
 
 ```json
 {
@@ -24,9 +24,17 @@ Multipart form data with the following fields:
 - `receiver_id` - The ID of the receiver
 - `is_payable` - Whether or not the file is payable
 
-## `GET /api/user/:user_id/content`
+## `GET /api/user/:user_id/content/purchased`
 
-This endpoint returns a list of all the files uploaded whose receiver_id matches the given user_id.
+Returns a list of all the content the user with the given ID has purchased.
+
+## `GET /api/user/:user_id/content/received`
+
+Returns a list of all the content the user with the given ID has been sent.
+
+## `GET /api/user/:user_id/content/:content_id`
+
+Returns a single piece of content in the media format it was uploaded in.
 
 ## `POST /api/content/:content_id/purchase`
 
@@ -36,7 +44,7 @@ The body of the request is a JSON object with the following properties:
 
 ```json
 {
-  "receiver_id": 123
+  "user_id": 123
 }
 ```
 
@@ -44,8 +52,8 @@ If successful, this endpoints returns the following JSON response:
 
 ```json
 {
-    "purchase_id": 567,
-    "purchase_token": "9awrg97qa8w4g7q92847gqw4",
+    "purchase_id": 4,
+    "purchase_token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJtYXJrZXQiLCJleHAiOjE2OTU4MTMxNzksImlhdCI6MTY5NTgxMjU3OSwiaXNzIjoibWFya2V0IiwianRpIjoiZDAzODRhMWUtYjRjOS00MjdkLThkYTMtOTJjNWQ3MTczNTU3IiwibmJmIjoxNjk1ODEyNTc4LCJzdWIiOiJwdXJjaGFzZTo1OmNvbnRlbnQ6NTpyZWNlaXZlcjoxMjMiLCJ0eXAiOiJhY2Nlc3MifQ.N-eviNY8SojZIrkg1J-nDTv8fpIP46O010bcoL4FHpHS52ZBroFCOcebZkQSTeBa9pDn-Ng8bPRPlWqsV47-pg",
     "content_id": 3
 }
 ```
@@ -55,18 +63,18 @@ client can use this token to complete a purchase.
 
 ## `POST /api/purchase/:purchase_id/complete
 
-This endpoint is used to complete a purchase. The `purchase_id` is the ID of the purchase that was returned from the `POST /api/content/:content_id/purchase` endpoint.
+Completes a purchase. The `purchase_id` is the ID of the purchase that was returned from the `POST /api/content/:content_id/purchase` endpoint.
 
-This request requires the purchase token to be sent in the `X-Purchase-Token` header.
+Headers Required:
 
-If successful, this endpoint returns the following JSON response:
+```text
+X-Purchase-Token: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJtYXJrZXQiLCJleHAiOjE2OTU4MTMxNzksImlhdCI6MTY5NTgxMjU3OSwiaXNzIjoibWFya2V0IiwianRpIjoiZDAzODRhMWUtYjRjOS00MjdkLThkYTMtOTJjNWQ3MTczNTU3IiwibmJmIjoxNjk1ODEyNTc4LCJzdWIiOiJwdXJjaGFzZTo1OmNvbnRlbnQ6NTpyZWNlaXZlcjoxMjMiLCJ0eXAiOiJhY2Nlc3MifQ.N-eviNY8SojZIrkg1J-nDTv8fpIP46O010bcoL4FHpHS52ZBroFCOcebZkQSTeBa9pDn-Ng8bPRPlWqsV47-pg
+```
+
+If successful, a `200` response is given with a JSON payload:
 
 ```json
 {
-    "purchase_id": 567,
-    "content_id": 3,
-    "receiver_id": 123
+    "purchase_id": 4,
 }
 ```
-
-If the purchase token is invalid, this endpoint will return a `401` status code.
