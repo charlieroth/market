@@ -107,8 +107,16 @@ defmodule Market.Store do
   @spec init_purchase(content :: Content.t(), user_id :: integer()) ::
           {:ok, Content.t(), String.t()} | {:error, String.t()} | any()
   def init_purchase(%Content{} = content, user_id) do
-    case {content.is_payable, content.receiver_id == user_id} do
-      {true, true} ->
+    user_already_purchased? =
+      %{content_id: content.id, receiver_id: user_id, completed: true}
+      |> Purchase.Query.filter()
+      |> Repo.exists?()
+
+    case {user_already_purchased?, content.is_payable, content.receiver_id == user_id} do
+      {true, _, _} ->
+        {:error, "User already purchased content"}
+
+      {false, true, true} ->
         # create purchase
         {:ok, purchase} =
           create_purchase(%{
@@ -128,10 +136,10 @@ defmodule Market.Store do
 
         {:ok, content, purchase.purchase_token}
 
-      {false, _} ->
+      {false, false, _} ->
         {:error, "Content is not payable"}
 
-      {_, false} ->
+      {false, _, false} ->
         {:error, "Content is not for this receiver"}
     end
   end

@@ -21,7 +21,7 @@ defmodule Market.StoreTest do
     %{content: content, user: user, purchase: purchase}
   end
 
-  defp with_purchase_and_token(%{content: content, user: user}) do
+  defp with_incomplete_purchase_and_token(%{content: content, user: user}) do
     {:ok, purchase} =
       Market.Store.create_purchase(%{
         completed: false,
@@ -40,6 +40,27 @@ defmodule Market.StoreTest do
       )
 
     {:ok, purchase} = Market.Store.update_purchase(purchase, %{purchase_token: token})
+
+    %{content: content, user: user, purchase: purchase, token: token}
+  end
+
+  defp with_completed_purchase_and_token(%{content: content, user: user}) do
+    {:ok, purchase} =
+      Market.Store.create_purchase(%{
+        completed: false,
+        content_id: content.id,
+        receiver_id: user.id
+      })
+
+    {:ok, token} =
+      Market.Store.create_purchase_token(%{
+        purchase_id: purchase.id,
+        content_id: content.id,
+        receiver_id: user.id
+      })
+
+    {:ok, purchase} =
+      Market.Store.update_purchase(purchase, %{purchase_token: token, completed: true})
 
     %{content: content, user: user, purchase: purchase, token: token}
   end
@@ -144,8 +165,41 @@ defmodule Market.StoreTest do
     end
   end
 
+  describe "init_purchase/2 incomplete purchase" do
+    setup [:with_user, :with_content, :with_incomplete_purchase_and_token]
+
+    test "user can initialize a purchase for a piece of content they are a receiver of", %{
+      user: user,
+      content: content,
+      purchase: purchase,
+      token: token
+    } do
+      assert {:ok, _content, _purchase_token} = Market.Store.init_purchase(content, user.id)
+    end
+
+    test "user cannot initialize a purchase for a piece of content they are not the receiver of",
+         %{
+           content: content
+         } do
+      assert {:error, "Content is not for this receiver"} =
+               Market.Store.init_purchase(content, 789)
+    end
+  end
+
+  describe "init_purchase/2 completed purchase" do
+    setup [:with_user, :with_content, :with_completed_purchase_and_token]
+
+    test "Same user cannot initialize purchase of same content twice", %{
+      user: user,
+      content: content
+    } do
+      assert {:error, "User already purchased content"} =
+               Market.Store.init_purchase(content, user.id)
+    end
+  end
+
   describe "complete_purchase/2" do
-    setup [:with_user, :with_content, :with_purchase_and_token]
+    setup [:with_user, :with_content, :with_incomplete_purchase_and_token]
 
     test "complete_purchase/2 returns success", %{
       purchase: purchase,

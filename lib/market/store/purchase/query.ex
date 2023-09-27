@@ -8,7 +8,8 @@ defmodule Market.Store.Purchase.Query do
     query
     |> filter_by_purchase_id(filters)
     |> filter_by_content_id(filters)
-    |> filter_by_user_id(filters)
+    |> filter_by_receiver_id(filters)
+    |> filter_by_completed(filters)
   end
 
   def filter_by_purchase_id(query, %{purchase_id: purchase_id}) do
@@ -18,12 +19,12 @@ defmodule Market.Store.Purchase.Query do
 
   def filter_by_purchase_id(query, _filters), do: query
 
-  def filter_by_user_id(query, %{receiver_id: receiver_id}) do
+  def filter_by_receiver_id(query, %{receiver_id: receiver_id}) do
     query
     |> where([p], p.receiver_id == ^receiver_id)
   end
 
-  def filter_by_user_id(query, _filters), do: query
+  def filter_by_receiver_id(query, _filters), do: query
 
   def filter_by_content_id(query, %{content_id: content_id}) do
     query
@@ -31,4 +32,11 @@ defmodule Market.Store.Purchase.Query do
   end
 
   def filter_by_content_id(query, _filters), do: query
+
+  def filter_by_completed(query, %{completed: completed}) do
+    query
+    |> where([p], p.completed == ^completed)
+  end
+
+  def filter_by_completed(query, _filters), do: query
 end
