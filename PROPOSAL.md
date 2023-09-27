@@ -12,7 +12,7 @@ and optimize performance of file uploads (see "Optimizing File Uploads In Regard
 ## System Design & Architecture
 
 In the proof-of-concept stage, I would keep the Sender API and Consumer API
-in the same application. 
+in the same application.
 
 In production, I would consider splitting the APIs into separate applications,
 allowing for more flexibility in scaling the APIs independently.
@@ -28,9 +28,9 @@ scaled by replicating the database.
 
 In the proof-of-concept stage, I would also store the files in a PostgreSQL
 table using the `bytea` data type. This would allow for a more simple infrastructure
-and deployment process. 
+and deployment process.
 
-In production, I would use a blob storage solution such as Amazon S3 or GCP 
+In production, I would use a blob storage solution such as Amazon S3 or GCP
 Cloud Storage. This would also allow you to utilizing the optimized APIs
 that these services have developed that have allowed hundreds of companies
 to scale up their services to meet much higher demands than 50 req/sec.
@@ -51,10 +51,10 @@ The case gives the requirement for allowing a request to be made to the API
 with the file as a string/binary. This is fine for the prototype stage and
 even in production, however for Elixir applications that use `Plug` this is
 not the most efficient way to handle file uploads, especially large files.
-In this [article](https://blog.tentamen.eu/how-to-upload-files-in-elixir-phoenix-json-api/) 
+In this [article](https://blog.tentamen.eu/how-to-upload-files-in-elixir-phoenix-json-api/)
 it was found that by using multi-part form data requests, you can lean on the
 work of developers before you and you will receive a `%Plug.Upload{}` struct
-in the requests `%Plug.Conn{}`. Per the `Plug.Upload` documentation, "Uploaded 
+in the requests `%Plug.Conn{}`. Per the `Plug.Upload` documentation, "Uploaded
 files are stored in a temporary directory and removed from that directory after
 the process that requested the file dies". All of this to say, when experiencing
 a high volume of file uploads, it might be a good idea to consider using
