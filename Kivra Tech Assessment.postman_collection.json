@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "cb9be1cd-b050-46f8-8589-2e7df5d254df",
+		"name": "Kivra Tech Assessment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17782834"
+	},
+	"item": [
+		{
+			"name": "/content (json)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"file\": \"IyBNYXJrZXQKCiMjIERlc2NyaXB0aW9uCgpNYXJrZXQgaXMgYSBFbGl4aXIsIFBob2VuaXggYXBwbGljYXRpb24gYnVpbHQgZm9yIGEgdGVjaG5pY2FsIGFzc2Vzc21lbnQgd2l0aCBLaXZyYSBmb3IgYSBTZW5pb3IgQmFja2VuZCBFbmdpbmVlciBwb3NpdGlvbi4KCiMjIEdldHRpbmcgU3RhcnRlZAoKIyMjIERhdGFiYXNlCgpgTWFya2V0YCB1c2VzIFBvc3RncmVTUUwgYXMgaXRzIGRhdGFiYXNlLiBUaGUgZWFzaWVzdCB3YXkgdG8gZ2V0IHN0YXJ0ZWQgaXMgdG8gdXNlIERvY2tlciBEZXNrdG9wLiBZb3UgY2FuIGZpbmQgaW5zdHJ1Y3Rpb25zIHRvIGdldCBQb3N0Z3JlU1FMIHJ1bm5pbmcgaW4gRG9ja2VyIFtoZXJlXShodHRwczovL3d3dy5kb2NrZXIuY29tL2Jsb2cvaG93LXRvLXVzZS10aGUtcG9zdGdyZXMtZG9ja2VyLW9mZmljaWFsLWltYWdlLykuCgpPbmNlIHlvdSBhcmUgc2V0dXAsIHlvdSBjYW4gc3RhcnQgdGhlIFBvc3RncmVTUUwgc2VydmVyIGluIERvY2tlciBEZXNrdG9wLgoKIyMjIEFwcGxpY2F0aW9uCgpUbyBzdGFydCB0aGUgQVBJOgoKYGBgYmFzaAokIGdpdCBjbG9uZSBodHRwczovL2dpdGh1Yi5jb20vY2hhcmxpZXJvdGgvbWFya2V0LmdpdAoKJCBjZCBtYXJrZXQKCiQgbWl4IHNldHVwCgokIGlleCAtUyBtaXggcGh4LnNlcnZlcgpgYGAKCkFQSSBpcyBub3cgYXZhaWxhYmxlIGF0IFtgaHR0cDovL2xvY2FsaG9zdDo0MDAwL2FwaWBdKGh0dHA6Ly9sb2NhbGhvc3Q6NDAwMC9hcGkpLg==\",\n    \"file_type\": \"txt\",\n    \"sender_id\": 678,\n    \"receiver_id\": 123,\n    \"is_payable\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/content",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"content"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/content (multi-part form-data)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file_type",
+							"value": "pdf",
+							"type": "text"
+						},
+						{
+							"key": "sender_id",
+							"value": "321",
+							"type": "text"
+						},
+						{
+							"key": "receiver_id",
+							"value": "654",
+							"type": "text"
+						},
+						{
+							"key": "is_payable",
+							"value": "false",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/content",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"content"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/user/:user_id/content/:content_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/user/:user_id/content/:content_id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"user",
+						":user_id",
+						"content",
+						":content_id"
+					],
+					"variable": [
+						{
+							"key": "user_id",
+							"value": "123"
+						},
+						{
+							"key": "content_id",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "/user/:user_id/content/:content_id",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:4000/api/user/:user_id/content/:content_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "4000",
+							"path": [
+								"api",
+								"user",
+								":user_id",
+								"content",
+								":content_id"
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "123"
+								},
+								{
+									"key": "content_id",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "plain",
+					"header": [
+						{
+							"key": "date",
+							"value": "Wed, 27 Sep 2023 17:24:30 GMT"
+						},
+						{
+							"key": "content-length",
+							"value": "455"
+						},
+						{
+							"key": "vary",
+							"value": "accept-encoding"
+						},
+						{
+							"key": "content-encoding",
+							"value": "gzip"
+						},
+						{
+							"key": "cache-control",
+							"value": "max-age=0, private, must-revalidate"
+						},
+						{
+							"key": "x-request-id",
+							"value": "F4jRYDttfR4RgoQAAAMB"
+						},
+						{
+							"key": "content-type",
+							"value": "text/plain; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "# Market\n\n## Description\n\nMarket is a Elixir, Phoenix application built for a technical assessment with Kivra for a Senior Backend Engineer position.\n\n## Getting Started\n\n### Database\n\n`Market` uses PostgreSQL as its database. The easiest way to get started is to use Docker Desktop. You can find instructions to get PostgreSQL running in Docker [here](https://www.docker.com/blog/how-to-use-the-postgres-docker-official-image/).\n\nOnce you are setup, you can start the PostgreSQL server in Docker Desktop.\n\n### Application\n\nTo start the API:\n\n```bash\n$ git clone https://github.com/charlieroth/market.git\n\n$ cd market\n\n$ mix setup\n\n$ iex -S mix phx.server\n```\n\nAPI is now available at [`http://localhost:4000/api`](http://localhost:4000/api)."
+				}
+			]
+		},
+		{
+			"name": "/user/:user_id/content/purchased",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/user/123/content",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"user",
+						"123",
+						"content"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/user/:user_id/content/received",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/api/user/123/content",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"user",
+						"123",
+						"content"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/content/:content_id/purchase",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": 123\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/content/:content_id/purchase",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"content",
+						":content_id",
+						"purchase"
+					],
+					"variable": [
+						{
+							"key": "content_id",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/purchase/:purchase_id/complete",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Purchase-Token",
+						"value": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJtYXJrZXQiLCJleHAiOjE2OTU4MTMxNzksImlhdCI6MTY5NTgxMjU3OSwiaXNzIjoibWFya2V0IiwianRpIjoiZDAzODRhMWUtYjRjOS00MjdkLThkYTMtOTJjNWQ3MTczNTU3IiwibmJmIjoxNjk1ODEyNTc4LCJzdWIiOiJwdXJjaGFzZTo1OmNvbnRlbnQ6NTpyZWNlaXZlcjoxMjMiLCJ0eXAiOiJhY2Nlc3MifQ.N-eviNY8SojZIrkg1J-nDTv8fpIP46O010bcoL4FHpHS52ZBroFCOcebZkQSTeBa9pDn-Ng8bPRPlWqsV47-pg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/api/purchase/:purchase_id/complete",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"purchase",
+						":purchase_id",
+						"complete"
+					],
+					"variable": [
+						{
+							"key": "purchase_id",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
