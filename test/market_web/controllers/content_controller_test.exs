@@ -133,7 +133,6 @@ defmodule MarketWeb.ContentControllerTest do
 
     test "fails when an invalid content_id is in the URL", %{
       conn: conn,
-      content: content,
       user: user
     } do
       conn =
@@ -148,7 +147,6 @@ defmodule MarketWeb.ContentControllerTest do
 
     test "fails content_id not found", %{
       conn: conn,
-      content: content,
       user: user
     } do
       conn =
@@ -167,9 +165,8 @@ defmodule MarketWeb.ContentControllerTest do
 
     test "successfully completes a purchase", %{
       conn: conn,
-      content: content,
-      purchase: purchase,
-      token: token
+      token: token,
+      purchase: purchase
     } do
       conn =
         conn
@@ -182,9 +179,8 @@ defmodule MarketWeb.ContentControllerTest do
 
     test "fails when purchase token is expired", %{
       conn: conn,
-      content: content,
-      purchase: purchase,
-      token: token
+      token: token,
+      purchase: purchase
     } do
       Process.sleep(3000)
 
@@ -212,7 +208,6 @@ defmodule MarketWeb.ContentControllerTest do
 
     test "fails when purchase id is not a valid id", %{
       conn: conn,
-      purchase: purchase,
       token: token
     } do
       conn =
