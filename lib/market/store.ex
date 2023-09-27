@@ -31,6 +31,31 @@ defmodule Market.Store do
     Content.Query.base() |> Repo.all()
   end
 
+  @spec purchased_content_for_user(integer()) :: [Content.t()]
+  def purchased_content_for_user(user_id) do
+    completed_purchases_content_ids =
+      Purchase.Query.base()
+      |> where([p], p.receiver_id == ^user_id and p.completed == true)
+      |> Repo.all()
+      |> Enum.map(& &1.content_id)
+
+    Content.Query.base()
+    |> where([c], c.id in ^completed_purchases_content_ids)
+    |> Repo.all()
+  end
+
+  @spec received_content_for_user(integer()) :: [Content.t()]
+  def received_content_for_user(user_id) do
+    Content.Query.for_receiver(user_id) |> Repo.all()
+  end
+
+  @spec user_has_purchased?(user_id :: integer(), content_id :: integer()) :: boolean()
+  def user_has_purchased?(user_id, content_id) do
+    %{content_id: content_id, receiver_id: user_id, completed: true}
+    |> Purchase.Query.filter()
+    |> Repo.exists?()
+  end
+
   @doc """
   Returns a piece of content.
 
@@ -126,11 +151,14 @@ defmodule Market.Store do
           })
 
         {:ok, token} =
-          create_purchase_token(%{
-            purchase_id: purchase.id,
-            content_id: content.id,
-            receiver_id: user_id
-          })
+          create_purchase_token(
+            %{
+              purchase_id: purchase.id,
+              content_id: content.id,
+              receiver_id: user_id
+            },
+            {10, :minute}
+          )
 
         {:ok, purchase} = update_purchase(purchase, %{purchase_token: token})
 
@@ -172,17 +200,18 @@ defmodule Market.Store do
 
   @doc """
   Creates a JWT token to complete a purchase later on.
-
-  Returns a purchase token that expires in 1 minutes.
   """
-  @spec create_purchase_token(%{
-          purchase_id: integer(),
-          content_id: integer(),
-          receiver_id: integer()
-        }) :: {:ok, String.t()} | {:error, any()}
+  @spec create_purchase_token(
+          %{
+            purchase_id: integer(),
+            content_id: integer(),
+            receiver_id: integer()
+          },
+          ttl :: tuple()
+        ) :: {:ok, String.t()} | {:error, any()}
   def create_purchase_token(
         %{purchase_id: _purchase_id, content_id: _content_id, receiver_id: _receiver_id} = attrs,
-        ttl \\ {1, :minute}
+        ttl
       ) do
     case Market.Guardian.encode_and_sign(attrs, %{}, ttl: ttl) do
       {:ok, token, _claims} ->
@@ -191,10 +220,6 @@ defmodule Market.Store do
       {:error, _reason} = error ->
         error
     end
-  end
-
-  def create_purchase_token(_params, _ttl) do
-    {:error, "Invalid purchase token creation attributes"}
   end
 
   @doc """

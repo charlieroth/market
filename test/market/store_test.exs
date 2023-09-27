@@ -53,11 +53,14 @@ defmodule Market.StoreTest do
       })
 
     {:ok, token} =
-      Market.Store.create_purchase_token(%{
-        purchase_id: purchase.id,
-        content_id: content.id,
-        receiver_id: user.id
-      })
+      Market.Store.create_purchase_token(
+        %{
+          purchase_id: purchase.id,
+          content_id: content.id,
+          receiver_id: user.id
+        },
+        {1, :minute}
+      )
 
     {:ok, purchase} =
       Market.Store.update_purchase(purchase, %{purchase_token: token, completed: true})
@@ -157,11 +160,14 @@ defmodule Market.StoreTest do
       purchase: purchase
     } do
       assert {:ok, _token} =
-               Market.Store.create_purchase_token(%{
-                 purchase_id: purchase.id,
-                 content_id: content.id,
-                 receiver_id: user.id
-               })
+               Market.Store.create_purchase_token(
+                 %{
+                   purchase_id: purchase.id,
+                   content_id: content.id,
+                   receiver_id: user.id
+                 },
+                 {1, :minute}
+               )
     end
   end
 
@@ -170,9 +176,7 @@ defmodule Market.StoreTest do
 
     test "user can initialize a purchase for a piece of content they are a receiver of", %{
       user: user,
-      content: content,
-      purchase: purchase,
-      token: token
+      content: content
     } do
       assert {:ok, _content, _purchase_token} = Market.Store.init_purchase(content, user.id)
     end

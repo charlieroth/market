@@ -85,28 +85,100 @@ defmodule MarketWeb.ContentController do
   defp parse_boolean_string("false"), do: false
   defp parse_boolean_string(_), do: {:error, "invalid boolean string"}
 
-  def content_for_user(conn, %{"user_id" => user_id}) do
-    with {user_id, _} <- Integer.parse(user_id),
-         {:ok, contents} <- Store.list_contents(%{user_id: user_id}) do
+  def content_for_user(conn, %{"content_id" => content_id, "user_id" => user_id}) do
+    with {content_id, _} <- Integer.parse(content_id),
+         {user_id, _} <- Integer.parse(user_id),
+         true <- Store.user_has_purchased?(user_id, content_id),
+         %Store.Content{} = content <- Store.get_content(content_id) do
+      content_type =
+        case content.file_type do
+          "png" -> "image/png"
+          "jpg" -> "image/jpeg"
+          "jpeg" -> "image/jpeg"
+          "gif" -> "image/gif"
+          "pdf" -> "application/pdf"
+          "txt" -> "text/plain"
+          _ -> nil
+        end
+
       conn
-      |> put_status(200)
-      |> render(:index, contents: contents)
+      |> put_resp_content_type(content_type)
+      |> send_resp(200, content.file)
     else
-      {:error, "No content found"} ->
+      false ->
         conn
-        |> put_status(:not_found)
-        |> json(%{message: "No content found"})
+        |> put_status(403)
+        |> json(%{error: "User has not purchased content"})
+
+      nil ->
+        conn
+        |> put_status(404)
+        |> json(%{error: "Failed to find content"})
 
       reason ->
+        IO.inspect(reason, label: "GET /api/user/:user_id/content/:content_id failed")
+
         conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{errors: reason})
+        |> put_status(500)
+        |> json(%{error: "Internal server error"})
+    end
+  end
+
+  def purchased_content_for_user(conn, %{"user_id" => user_id}) do
+    with {user_id, _} <- Integer.parse(user_id) do
+      case Store.purchased_content_for_user(user_id) do
+        [_content | _] = contents ->
+          conn
+          |> put_status(200)
+          |> render(:index, contents: contents)
+
+        [] ->
+          conn
+          |> put_status(200)
+          |> render(:index, contents: [])
+      end
+    else
+      :error ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Failed to parse user_id"})
+
+      _reason ->
+        conn
+        |> put_status(500)
+        |> json(%{errors: "Internal server error"})
+    end
+  end
+
+  def received_content_for_user(conn, %{"user_id" => user_id}) do
+    with {user_id, _} <- Integer.parse(user_id) do
+      case Store.received_content_for_user(user_id) do
+        [_content | _] = contents ->
+          conn
+          |> put_status(200)
+          |> render(:index, contents: contents)
+
+        [] ->
+          conn
+          |> put_status(200)
+          |> render(:index, contents: [])
+      end
+    else
+      :error ->
+        conn
+        |> put_status(400)
+        |> json(%{error: "Failed to parse user_id"})
+
+      _reason ->
+        conn
+        |> put_status(500)
+        |> json(%{errors: "Internal server error"})
     end
   end
 
   def purchase(conn, %{"content_id" => content_id, "user_id" => user_id}) do
     with {content_id, _} <- Integer.parse(content_id),
-         {:ok, content} <- Store.get_content(content_id),
+         %Store.Content{} = content <- Store.get_content(content_id),
          {:ok, content, purchase_token} <- Store.init_purchase(content, user_id) do
       conn
       |> put_status(:ok)
