@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"file\": \"IyBNYXJrZXQKCiMjIERlc2NyaXB0aW9uCgpNYXJrZXQgaXMgYSBFbGl4aXIsIFBob2VuaXggYXBwbGljYXRpb24gYnVpbHQgZm9yIGEgdGVjaG5pY2FsIGFzc2Vzc21lbnQgd2l0aCBLaXZyYSBmb3IgYSBTZW5pb3IgQmFja2VuZCBFbmdpbmVlciBwb3NpdGlvbi4KCiMjIEdldHRpbmcgU3RhcnRlZAoKIyMjIERhdGFiYXNlCgpgTWFya2V0YCB1c2VzIFBvc3RncmVTUUwgYXMgaXRzIGRhdGFiYXNlLiBUaGUgZWFzaWVzdCB3YXkgdG8gZ2V0IHN0YXJ0ZWQgaXMgdG8gdXNlIERvY2tlciBEZXNrdG9wLiBZb3UgY2FuIGZpbmQgaW5zdHJ1Y3Rpb25zIHRvIGdldCBQb3N0Z3JlU1FMIHJ1bm5pbmcgaW4gRG9ja2VyIFtoZXJlXShodHRwczovL3d3dy5kb2NrZXIuY29tL2Jsb2cvaG93LXRvLXVzZS10aGUtcG9zdGdyZXMtZG9ja2VyLW9mZmljaWFsLWltYWdlLykuCgpPbmNlIHlvdSBhcmUgc2V0dXAsIHlvdSBjYW4gc3RhcnQgdGhlIFBvc3RncmVTUUwgc2VydmVyIGluIERvY2tlciBEZXNrdG9wLgoKIyMjIEFwcGxpY2F0aW9uCgpUbyBzdGFydCB0aGUgQVBJOgoKYGBgYmFzaAokIGdpdCBjbG9uZSBodHRwczovL2dpdGh1Yi5jb20vY2hhcmxpZXJvdGgvbWFya2V0LmdpdAoKJCBjZCBtYXJrZXQKCiQgbWl4IHNldHVwCgokIGlleCAtUyBtaXggcGh4LnNlcnZlcgpgYGAKCkFQSSBpcyBub3cgYXZhaWxhYmxlIGF0IFtgaHR0cDovL2xvY2FsaG9zdDo0MDAwL2FwaWBdKGh0dHA6Ly9sb2NhbGhvc3Q6NDAwMC9hcGkpLg==\",\n    \"file_type\": \"txt\",\n    \"sender_id\": 678,\n    \"receiver_id\": 123,\n    \"is_payable\": true\n}",
+					"raw": "{\n    \"file\": \"IyBNYXJrZXQKCiMjIERlc2NyaXB0aW9uCgpNYXJrZXQgaXMgYSBFbGl4aXIsIFBob2VuaXggYXBwbGljYXRpb24gYnVpbHQgZm9yIGEgdGVjaG5pY2FsIGFzc2Vzc21lbnQgd2l0aCBLaXZyYSBmb3IgYSBTZW5pb3IgQmFja2VuZCBFbmdpbmVlciBwb3NpdGlvbi4KCiMjIEdldHRpbmcgU3RhcnRlZAoKIyMjIERhdGFiYXNlCgpgTWFya2V0YCB1c2VzIFBvc3RncmVTUUwgYXMgaXRzIGRhdGFiYXNlLiBUaGUgZWFzaWVzdCB3YXkgdG8gZ2V0IHN0YXJ0ZWQgaXMgdG8gdXNlIERvY2tlciBEZXNrdG9wLiBZb3UgY2FuIGZpbmQgaW5zdHJ1Y3Rpb25zIHRvIGdldCBQb3N0Z3JlU1FMIHJ1bm5pbmcgaW4gRG9ja2VyIFtoZXJlXShodHRwczovL3d3dy5kb2NrZXIuY29tL2Jsb2cvaG93LXRvLXVzZS10aGUtcG9zdGdyZXMtZG9ja2VyLW9mZmljaWFsLWltYWdlLykuCgpPbmNlIHlvdSBhcmUgc2V0dXAsIHlvdSBjYW4gc3RhcnQgdGhlIFBvc3RncmVTUUwgc2VydmVyIGluIERvY2tlciBEZXNrdG9wLgoKIyMjIEFwcGxpY2F0aW9uCgpUbyBzdGFydCB0aGUgQVBJOgoKYGBgYmFzaAokIGdpdCBjbG9uZSBodHRwczovL2dpdGh1Yi5jb20vY2hhcmxpZXJvdGgvbWFya2V0LmdpdAoKJCBjZCBtYXJrZXQKCiQgbWl4IHNldHVwCgokIGlleCAtUyBtaXggcGh4LnNlcnZlcgpgYGAKCkFQSSBpcyBub3cgYXZhaWxhYmxlIGF0IFtgaHR0cDovL2xvY2FsaG9zdDo0MDAwL2FwaWBdKGh0dHA6Ly9sb2NhbGhvc3Q6NDAwMC9hcGkpLg==\",\n    \"content_type\": \"text/plain\",\n    \"sender_id\": 678,\n    \"receiver_id\": 123,\n    \"is_payable\": true\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -44,8 +44,8 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "file_type",
-							"value": "pdf",
+							"key": "content_type",
+							"value": "application/pdf",
 							"type": "text"
 						},
 						{
