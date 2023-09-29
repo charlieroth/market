@@ -39,7 +39,7 @@ to scale up their services to meet much higher demands than 50 req/sec.
 
 Elixir can handle the performance requirements specified in the case description
 (50 req/sec). You could also easily horizontally scale the system using
-a combination of Docker/k8s and the distribution tools built into the BEAM.
+a combination of Docker/k8s and the concurrency/distribution tools built into the BEAM.
 
 You could also architect the application to process uploads in a job processing
 manner by either writing your own solution or using a "ready-made" solution
