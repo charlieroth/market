@@ -72,7 +72,7 @@ defmodule Market.StoreTest do
     @valid_content_attrs %{
       file:
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-      file_type: "png",
+      content_type: "image/png",
       sender_id: 123,
       receiver_id: 456,
       is_payable: true
@@ -81,7 +81,7 @@ defmodule Market.StoreTest do
     @invalid_content_attrs %{
       file: nil,
       sender_id: nil,
-      file_type: nil,
+      content_type: nil,
       receiver_id: nil,
       is_payable: false
     }
@@ -101,7 +101,7 @@ defmodule Market.StoreTest do
                Market.Store.create_content(@valid_content_attrs)
 
       assert content.sender_id == 123
-      assert content.file_type == "png"
+      assert content.content_type == "image/png"
       assert content.receiver_id == 456
       assert content.is_payable == true
     end
@@ -111,12 +111,38 @@ defmodule Market.StoreTest do
                Market.Store.create_content(@invalid_content_attrs)
     end
 
+    test "create_content/1 with invalid content_type returns error changeset" do
+      assert {:error,
+              %Ecto.Changeset{
+                valid?: false,
+                errors: [
+                  content_type:
+                    {"is invalid",
+                     [
+                       validation: :inclusion,
+                       enum: [
+                         "image/jpeg",
+                         "image/png",
+                         "image/gif",
+                         "application/pdf",
+                         "multipart/form-data",
+                         "text/plain"
+                       ]
+                     ]}
+                ]
+              }} =
+               Market.Store.create_content(
+                 @valid_content_attrs
+                 |> Map.put(:content_type, "png")
+               )
+    end
+
     test "update_content/2 with valid data updates the content" do
       content = content_fixture()
 
       update_attrs = %{
         sender_id: 456,
-        file_type: "jpeg",
+        content_type: "image/jpeg",
         receiver_id: 123,
         is_payable: false
       }
@@ -125,7 +151,7 @@ defmodule Market.StoreTest do
                Market.Store.update_content(content, update_attrs)
 
       assert content.sender_id == 456
-      assert content.file_type == "jpeg"
+      assert content.content_type == "image/jpeg"
       assert content.receiver_id == 123
       assert content.is_payable == false
     end

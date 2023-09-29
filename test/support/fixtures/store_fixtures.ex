@@ -13,7 +13,7 @@ defmodule Market.StoreFixtures do
       |> Enum.into(%{
         file:
           "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-        file_type: "png",
+        content_type: "image/png",
         sender_id: 123,
         receiver_id: 456,
         is_payable: true

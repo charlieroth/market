@@ -71,7 +71,7 @@ defmodule MarketWeb.ContentControllerTest do
         |> post(~p"/api/content", %{
           file:
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-          file_type: "png",
+          content_type: "image/png",
           sender_id: 678,
           receiver_id: 123,
           is_payable: false
@@ -79,7 +79,7 @@ defmodule MarketWeb.ContentControllerTest do
 
       assert %{
                "id" => _id,
-               "file_type" => _file_type,
+               "content_type" => _content_type,
                "sender_id" => _sender_id,
                "is_payable" => _is_payable
              } = json_response(conn, 201)["data"]
@@ -91,13 +91,29 @@ defmodule MarketWeb.ContentControllerTest do
         |> put_req_header("content-type", "application/json")
         |> post(~p"/api/content", %{
           file: "not-valid-file-data",
-          file_type: "png",
+          content_type: "image/png",
           sender_id: 678,
           receiver_id: 123,
           is_payable: false
         })
 
-      assert json_response(conn, 422)["errors"] != %{}
+      assert conn.status == 400
+    end
+
+    test "returns 422 status when given a bad content-type", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_header("content-type", "application/json")
+        |> post(~p"/api/content", %{
+          file:
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          content_type: "png",
+          sender_id: 678,
+          receiver_id: 123,
+          is_payable: false
+        })
+
+      assert conn.status == 422
     end
 
     test "returns 400 when given unsupported content-type", %{conn: conn} do
@@ -107,7 +123,7 @@ defmodule MarketWeb.ContentControllerTest do
         |> post(~p"/api/content", %{
           file:
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-          file_type: "png",
+          content_type: "image/png",
           sender_id: 678,
           receiver_id: 123,
           is_payable: false
@@ -153,18 +169,27 @@ defmodule MarketWeb.ContentControllerTest do
   describe "get receiver content" do
     setup [:with_user, :with_content]
 
-    test "returns content for given user", %{conn: conn, content: content, user: user} do
+    test "returns 200 and received content for given user", %{
+      conn: conn,
+      content: content,
+      user: user
+    } do
       conn = get(conn, ~p"/api/user/#{user.id}/content/received")
 
       assert json_response(conn, 200)["data"] == [
                %{
-                 "file_type" => "png",
+                 "content_type" => "image/png",
                  "id" => content.id,
                  "is_payable" => true,
                  "receiver_id" => user.id,
                  "sender_id" => 123
                }
              ]
+    end
+
+    test "returns 400 when given an invalid user_id", %{conn: conn} do
+      conn = get(conn, ~p"/api/user/not-valid-user-id/content/received")
+      assert conn.status == 400
     end
   end
 
@@ -176,7 +201,7 @@ defmodule MarketWeb.ContentControllerTest do
 
       assert json_response(conn, 200)["data"] == [
                %{
-                 "file_type" => "png",
+                 "content_type" => "image/png",
                  "id" => content.id,
                  "is_payable" => true,
                  "receiver_id" => user.id,

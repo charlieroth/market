@@ -9,7 +9,7 @@ JSON, with `file` property as the base64 encoded string of the file to be upload
 ```json
 {
   "file": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-  "file_type": "png",
+  "content_type": "png",
   "sender_id": 123,
   "receiver_id": 456,
   "is_payable": true
@@ -19,7 +19,7 @@ JSON, with `file` property as the base64 encoded string of the file to be upload
 Multipart form data with the following fields:
 
 - `file` - The file to be uploaded
-- `file_type` - The file type of the file to be uploaded
+- `content_type` - The file type of the file to be uploaded
 - `sender_id` - The ID of the sender
 - `receiver_id` - The ID of the receiver
 - `is_payable` - Whether or not the file is payable

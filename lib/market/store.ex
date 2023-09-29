@@ -80,7 +80,7 @@ defmodule Market.Store do
   def create_content(
         %{
           file: _file,
-          file_type: _file_type,
+          content_type: _content_type,
           sender_id: _sender_id,
           receiver_id: _receiver_id,
           is_payable: _is_payable

@@ -12,7 +12,7 @@ The backend should be composed of 2 APIs:
 The sender API accepts files in binary format and some metadata that contains:
 
 - `sender_id` (integer)
-- `file_type` (string)
+- `content_type` (string)
 - `receiver_id` (integer)
 - `is_payable` (boolean)
 

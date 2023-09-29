@@ -4,7 +4,7 @@ defmodule Market.Store.Content do
 
   schema "contents" do
     field :file, :binary
-    field :file_type, :string
+    field :content_type, :string
     field :sender_id, :integer
     field :receiver_id, :integer
     field :is_payable, :boolean, default: false
@@ -15,7 +15,8 @@ defmodule Market.Store.Content do
   @doc false
   def changeset(content, attrs) do
     content
-    |> cast(attrs, [:sender_id, :file_type, :receiver_id, :is_payable, :file])
-    |> validate_required([:sender_id, :file_type, :receiver_id, :is_payable, :file])
+    |> cast(attrs, [:sender_id, :content_type, :receiver_id, :is_payable, :file])
+    |> validate_required([:sender_id, :content_type, :receiver_id, :is_payable, :file])
+    |> validate_inclusion(:content_type, Market.valid_content_types())
   end
 end

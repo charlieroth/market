@@ -25,9 +25,9 @@ defmodule MarketWeb.Router do
 
     post "/content", ContentController, :create
 
-    get "/user/:user_id/content/:content_id", ContentController, :content_for_user
     get "/user/:user_id/content/purchased", ContentController, :purchased_content_for_user
     get "/user/:user_id/content/received", ContentController, :received_content_for_user
+    get "/user/:user_id/content/:content_id", ContentController, :content_for_user
 
     post "/content/:content_id/purchase", ContentController, :purchase
 

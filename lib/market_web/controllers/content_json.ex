@@ -19,7 +19,7 @@ defmodule MarketWeb.ContentJSON do
     %{
       id: content.id,
       sender_id: content.sender_id,
-      file_type: content.file_type,
+      content_type: content.content_type,
       receiver_id: content.receiver_id,
       is_payable: content.is_payable
     }
