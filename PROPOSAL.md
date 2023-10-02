@@ -2,7 +2,7 @@
 
 ## Application & Hosting
 
-I would highly recommend building this with Elixir & Phoenix. This would allow
+I would recommend building this with Elixir & Phoenix. This would allow
 the development team to quickly spin up APIs that leverage best practices
 from years of API and systems design. By using Phoenix, you automically use
 `Plug` which provides you with almost everything you would need to build a well
@@ -22,7 +22,7 @@ file uploads the API will likely have different performance requirements and
 may even require different technology than what was used to build the prototype.
 
 Another example, the Consumer API would likely be more read-heavy and could be
-scaled by replicating the database.
+scaled by replicating the database or horizontal scaling application instances.
 
 ## File Storage
 
