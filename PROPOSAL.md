@@ -31,7 +31,7 @@ table using the `bytea` data type. This would allow for a more simple infrastruc
 and deployment process.
 
 In production, I would use a blob storage solution such as Amazon S3 or GCP
-Cloud Storage. This would also allow you to utilizing the optimized APIs
+Cloud Storage. This would also allow you to utilize the optimized APIs
 that these services have developed that have allowed hundreds of companies
 to scale up their services to meet much higher demands than 50 req/sec.
 
