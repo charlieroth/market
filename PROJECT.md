@@ -15,6 +15,7 @@ The sender API accepts files in binary format and some metadata that contains:
 - `content_type` (string)
 - `receiver_id` (integer)
 - `is_payable` (boolean)
+- `file` (binary)
 
 The Consumer API allows to query content by sender_id and if the content is payable the API should be able to trigger a payment.
 
